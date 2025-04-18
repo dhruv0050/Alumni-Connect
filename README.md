@@ -1,7 +1,3 @@
-Sure! Here's a **professional, well-structured README.md** for your **Alumni Connect** project, assuming it's using a **MERN stack with Clerk for auth** and has all the features you mentioned:
-
----
-
 ```markdown
 # 🎓 Alumni Connect
 
@@ -53,7 +49,7 @@ Sure! Here's a **professional, well-structured README.md** for your **Alumni Con
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/alumni-connect.git
+git clone https://github.com/dhruv0050/MentorMojo.git
 cd alumni-connect
 
 # Install frontend dependencies
@@ -113,6 +109,3 @@ This project is licensed under the MIT License.
 ## 🙋‍♀️ Made with 💙 by Team Alumni Connect
 ```
 
----
-
-Let me know your actual GitHub repo name and I'll plug it in, or if you're using different tools (like Flask backend, or not using Python for resume parsing), I can adjust accordingly!
