@@ -97,11 +97,5 @@ npm start
 We welcome contributions from everyone! Feel free to fork the repo, create pull requests, or raise issues.
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
 ## 🙋‍♀️ Made with 💙 
 Project created and maintained by [@dhruv0050](https://github.com/dhruv0050). Feel free to reach out with questions or feedback!
