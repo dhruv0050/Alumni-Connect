@@ -3,10 +3,10 @@ import NavBar from "@/components/NavBar"
 import { Button } from "@/components/ui/button"
 import { Search, Filter, Star } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { useAuth, SignedIn, SignedOut, useUser } from "@clerk/clerk-react"
-import { mentorApi, sessionApi } from "@/services/api"
+import { SignedIn, SignedOut, useUser } from "@clerk/clerk-react"
+import { mentorApi } from "@/services/api"
 import { toast, Toaster } from "react-hot-toast"
-import BookingModal from "@/components/BookingModal"
+import ChatModal from "@/components/ChatModal"
 import FilterModal, { FilterOptions } from "@/components/FilterModal"
 
 interface Mentor {
@@ -54,7 +54,7 @@ const applyFilters = (mentors: Mentor[], filters: MentorFilters) => {
 export default function Mentors() {
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,25 +82,6 @@ export default function Mentors() {
 
     fetchMentors();
   }, []);
-
-  const handleBookSession = async (date: Date) => {
-    if (!selectedMentor || !user) return;
-
-    try {
-      await sessionApi.bookSession({
-        mentor: selectedMentor._id,
-        user: user.id,
-        date: date,
-      });
-
-      toast.success("Session booked successfully!");
-
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Error booking session:', error);
-      toast.error("Failed to book session. Please try again.");
-    }
-  };
 
   const filteredMentors = useMemo(() => {
     let result = mentors;
@@ -191,10 +172,10 @@ export default function Mentors() {
                       className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                       onClick={() => {
                         setSelectedMentor(mentor);
-                        setIsBookingModalOpen(true);
+                        setIsChatModalOpen(true);
                       }}
                     >
-                      Book Session
+                      Start Chat
                     </Button>
                   </SignedIn>
                   <SignedOut>
@@ -202,7 +183,7 @@ export default function Mentors() {
                       className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                       onClick={() => navigate('/sign-in')}
                     >
-                      Sign in to Book
+                      Sign in to Chat
                     </Button>
                   </SignedOut>
                 </div>
@@ -213,11 +194,10 @@ export default function Mentors() {
       </div>
 
       {selectedMentor && (
-        <BookingModal
-          isOpen={isBookingModalOpen}
-          onClose={() => setIsBookingModalOpen(false)}
+        <ChatModal
+          isOpen={isChatModalOpen}
+          onClose={() => setIsChatModalOpen(false)}
           mentor={selectedMentor}
-          onBook={handleBookSession}
         />
       )}
 

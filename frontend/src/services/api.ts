@@ -45,4 +45,38 @@ export const sessionApi = {
     const response = await api.delete(`/sessions/${sessionId}`);
     return response.data;
   },
+};
+
+export const chatApi = {
+  startChat: async (mentorId: string, studentId: string) => {
+    const response = await fetch(`${API_URL}/chats`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mentorId, studentId }),
+    });
+    return response.json();
+  },
+
+  getUserChats: async (userId: string) => {
+    const response = await fetch(`${API_URL}/chats/user/${userId}`);
+    return response.json();
+  },
+
+  getChat: async (chatId: string) => {
+    const response = await fetch(`${API_URL}/chats/${chatId}`);
+    return response.json();
+  },
+
+  sendMessage: async (chatId: string, sender: string, content: string) => {
+    const response = await fetch(`${API_URL}/chats/${chatId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sender, content }),
+    });
+    return response.json();
+  },
 }; 
