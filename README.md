@@ -100,11 +100,11 @@ PORT=5000
 ```bash
 # Start backend server
 cd backend
-npm start
+npm run dev
 
 # In a new terminal, start frontend
 cd frontend
-npm start
+npm run dev
 ```
 
 ---
