@@ -1,4 +1,3 @@
-```markdown
 # 🎓 Alumni Connect
 
 **Alumni Connect** is a platform that bridges the gap between college students and their alumni for personalized career guidance, live mentoring sessions, and more — all while ensuring privacy, safety, and career-focused features.
@@ -8,24 +7,24 @@
 ## 🚀 Features
 
 ### 🔗 1-on-1 Mentoring
-- Book **live mentoring sessions** with alumni from well-established companies.
-- Track mentor performance with a **rating & feedback system**.
-- Built-in **reporting system** for inappropriate behavior.
+- Book live mentoring sessions with alumni from well-established companies
+- Track mentor performance with a rating & feedback system
+- Built-in reporting system for inappropriate behavior
 
 ### 💬 Privacy-Protected Chat
-- In-app **chat system** to ensure contact details remain confidential.
-- Prevents misuse of personal numbers or social accounts.
+- In-app chat system to ensure contact details remain confidential
+- Prevents misuse of personal numbers or social accounts
 
 ### 📢 Public Query Forum
-- Students can **post queries for free**.
-- Alumni can voluntarily respond and help out juniors without any session booking.
+- Students can post queries for free
+- Alumni can voluntarily respond and help out juniors without any session booking
 
 ### 📄 AI Resume Parser
-- Upload a resume and get instant feedback on how well it fits specific job roles.
-- AI suggests improvements based on the job profile.
+- Upload a resume and get instant feedback on how well it fits specific job roles
+- AI suggests improvements based on the job profile
 
 ### 🧑‍💼 Internal Job/Internship Alerts
-- Alumni can post openings from their companies to give students insider access to opportunities.
+- Alumni can post openings from their companies to give students insider access to opportunities
 
 ---
 
@@ -86,7 +85,6 @@ npm start
 ---
 
 ## ✨ Future Roadmap
-
 - [ ] Mentor availability calendar sync (Google Calendar API)
 - [ ] Stripe integration for session booking (if monetized later)
 - [ ] Video call integration (e.g., Jitsi/Zoom SDK)
@@ -105,7 +103,5 @@ We welcome contributions from everyone! Feel free to fork the repo, create pull 
 This project is licensed under the MIT License.
 
 ---
-
-## 🙋‍♀️ Made with 💙 by Team Alumni Connect
-```
-
+## 🙋‍♀️ Made with 💙 
+Project created and maintained by [@dhruv0050](https://github.com/dhruv0050). Feel free to reach out with questions or feedback!
