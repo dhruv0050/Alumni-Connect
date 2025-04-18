@@ -32,7 +32,9 @@ export default function Dashboard() {
 
       try {
         const data = await sessionApi.getUserSessions(user.id) as BookedSession[];
-        setSessions(data);
+        // Filter out any sessions with invalid mentor data
+        const validSessions = data.filter(session => session.mentor && session.mentor.imageUrl);
+        setSessions(validSessions);
       } catch (error) {
         console.error('Error fetching sessions:', error);
         toast({
@@ -88,14 +90,18 @@ export default function Dashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="mt-2 text-gray-600">
-            Welcome back, {user?.firstName || user?.username}!
+            Welcome back, {user?.firstName || user?.username || 'User'}!
           </p>
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Booked Sessions</h2>
           
-          {sessions.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Loading your sessions...</p>
+            </div>
+          ) : sessions.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">You haven't booked any sessions yet.</p>
               <button
@@ -108,44 +114,46 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-4">
               {sessions.map((session) => (
-                <div
-                  key={session._id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="flex items-center space-x-4">
-                    <img
-                      src={session.mentor.imageUrl}
-                      alt={session.mentor.name}
-                      className="h-12 w-12 rounded-full"
-                    />
-                    <div>
-                      <h3 className="font-medium text-gray-900">{session.mentor.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        {session.mentor.role} at {session.mentor.company}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {format(new Date(session.date), "MMMM d, yyyy 'at' h:mm a")}
-                      </p>
+                session.mentor && (
+                  <div
+                    key={session._id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={session.mentor.imageUrl}
+                        alt={session.mentor.name}
+                        className="h-12 w-12 rounded-full"
+                      />
+                      <div>
+                        <h3 className="font-medium text-gray-900">{session.mentor.name}</h3>
+                        <p className="text-sm text-gray-500">
+                          {session.mentor.role} at {session.mentor.company}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {format(new Date(session.date), "MMMM d, yyyy 'at' h:mm a")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        session.status === "upcoming" ? "bg-green-100 text-green-800" :
+                        session.status === "completed" ? "bg-gray-100 text-gray-800" :
+                        "bg-red-100 text-red-800"
+                      }`}>
+                        {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+                      </span>
+                      {session.status === "upcoming" && (
+                        <button 
+                          onClick={() => handleCancelSession(session._id)}
+                          className="text-red-600 hover:text-red-700 text-sm font-medium"
+                        >
+                          Cancel
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      session.status === "upcoming" ? "bg-green-100 text-green-800" :
-                      session.status === "completed" ? "bg-gray-100 text-gray-800" :
-                      "bg-red-100 text-red-800"
-                    }`}>
-                      {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
-                    </span>
-                    {session.status === "upcoming" && (
-                      <button 
-                        onClick={() => handleCancelSession(session._id)}
-                        className="text-red-600 hover:text-red-700 text-sm font-medium"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-                </div>
+                )
               ))}
             </div>
           )}
