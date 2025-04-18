@@ -14,7 +14,7 @@ interface Mentor {
   role: string;
   company: string;
   rating: number;
-  reviews: number;
+  batch: number;
   expertise: string[];
   imageUrl: string;
 }
@@ -116,7 +116,7 @@ export default function Mentors() {
                   <p className="text-sm text-gray-600">{mentor.role} at {mentor.company}</p>
                   <div className="flex items-center mt-1">
                     <Star className="h-4 w-4 text-yellow-400" />
-                    <span className="ml-1 text-sm text-gray-600">{mentor.rating} ({mentor.reviews} reviews)</span>
+                    <span className="ml-1 text-sm text-gray-600">{mentor.rating} (Batch: {mentor.batch})</span>
                   </div>
                 </div>
               </div>

@@ -12,6 +12,7 @@ interface BookingModalProps {
     name: string;
     role: string;
     company: string;
+    batch: number;
   }
   onBook: (date: Date) => void
 }

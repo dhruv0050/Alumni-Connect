@@ -5,7 +5,7 @@ export interface IMentor extends Document {
   role: string;
   company: string;
   rating: number;
-  reviews: number;
+  batch: number;
   expertise: string[];
   imageUrl: string;
 }
@@ -15,7 +15,7 @@ const mentorSchema = new Schema({
   role: { type: String, required: true },
   company: { type: String, required: true },
   rating: { type: Number, required: true, min: 0, max: 5 },
-  reviews: { type: Number, default: 0 },
+  batch: { type: Number, required: true },
   expertise: [{ type: String }],
   imageUrl: { type: String, required: true }
 }, {
