@@ -1,9 +1,11 @@
-
 import { ButtonCustom } from "./ui/button-custom"
 import { useNavigate } from "react-router-dom"
+import { useUser, useClerk, SignedIn, SignedOut } from "@clerk/clerk-react"
 
 export default function NavBar() {
   const navigate = useNavigate()
+  const { user } = useUser()
+  const { signOut } = useClerk()
 
   return (
     <nav className="bg-white shadow-sm">
@@ -25,12 +27,26 @@ export default function NavBar() {
             <a href="/jobs" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
               Job Board
             </a>
-            <ButtonCustom variant="default" size="sm">
-              Sign In
-            </ButtonCustom>
-            <ButtonCustom variant="secondary" size="sm">
-              Register
-            </ButtonCustom>
+            
+            <SignedOut>
+              <ButtonCustom variant="default" size="sm" onClick={() => navigate('/sign-in')}>
+                Sign In
+              </ButtonCustom>
+              <ButtonCustom variant="secondary" size="sm" onClick={() => navigate('/sign-up')}>
+                Register
+              </ButtonCustom>
+            </SignedOut>
+            
+            <SignedIn>
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-700 text-sm">
+                  {user?.firstName || user?.username}
+                </span>
+                <ButtonCustom variant="secondary" size="sm" onClick={() => signOut()}>
+                  Sign Out
+                </ButtonCustom>
+              </div>
+            </SignedIn>
           </div>
         </div>
       </div>
