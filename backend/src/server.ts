@@ -6,6 +6,8 @@ import { createServer } from 'http';
 import mentorRoutes from './routes/mentors';
 import sessionRoutes from './routes/sessions';
 import chatRoutes from './routes/chat';
+import queryRoutes from './routes/queries';
+import userRoutes from './routes/users';
 import { initializeSocket } from './socket';
 
 dotenv.config();
@@ -29,6 +31,8 @@ mongoose.connect(process.env.MONGODB_URI!)
 app.use('/api/mentors', mentorRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/queries', queryRoutes);
+app.use('/api/users', userRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

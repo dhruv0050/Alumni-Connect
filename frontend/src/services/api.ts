@@ -154,6 +154,7 @@ export const queriesApi = {
   },
   
   postQuery: async (queryData: {
+    title: string;
     content: string;
     tags: string[];
     author: string;

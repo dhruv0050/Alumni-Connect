@@ -15,7 +15,7 @@ interface Reply {
 }
 
 interface Query {
-  id: string;
+  _id: string;
   author: string;
   authorName: string;
   title: string;
@@ -27,37 +27,9 @@ interface Query {
   timestamp: string;
 }
 
-// Dummy data to display initially
-const dummyQueries: Query[] = [
-  {
-    id: "1",
-    author: "user1",
-    authorName: "Alex Thompson",
-    title: "Tips for System Design Interview at FAANG",
-    content: "I have an upcoming system design interview at a FAANG company. Looking for advice on preparation strategies and key topics to focus on.",
-    likes: 24,
-    likedBy: [],
-    replies: [],
-    tags: ["System Design", "Interview Prep", "FAANG"],
-    timestamp: "2 hours ago"
-  },
-  {
-    id: "2",
-    author: "user2",
-    authorName: "Emily Watson",
-    title: "Career Switch from Backend to ML Engineering",
-    content: "Currently working as a backend developer but interested in transitioning to ML Engineering. What skills should I prioritize?",
-    likes: 15,
-    likedBy: [],
-    replies: [],
-    tags: ["Career Switch", "Machine Learning", "Skills Development"],
-    timestamp: "5 hours ago"
-  }
-];
-
 export default function Queries() {
   const { user } = useUser();
-  const [queries, setQueries] = useState<Query[]>(dummyQueries); // Initialize with dummy data
+  const [queries, setQueries] = useState<Query[]>([]); // Initialize with empty array instead of dummy data
   const [newQuery, setNewQuery] = useState("");
   const [newQueryTitle, setNewQueryTitle] = useState("");
   const [loading, setLoading] = useState(true);
@@ -65,7 +37,7 @@ export default function Queries() {
   const [showQueryForm, setShowQueryForm] = useState(false);
   const [animatingLikes, setAnimatingLikes] = useState<Record<string, boolean>>({});
   
-  // Determine user role - the requirements mentioned using user.role
+  // Determine user role
   const isMentor = user?.publicMetadata?.role === 'mentor';
   
   useEffect(() => {
@@ -75,22 +47,18 @@ export default function Queries() {
   const fetchQueries = async () => {
     try {
       setLoading(true);
-      // Try to get data from API
-      const data = await queriesApi.getAllQueries().catch(error => {
-        console.log("API error, using dummy data", error);
-        return dummyQueries; // Fallback to dummy data on API failure
-      });
+      // Get data from API
+      const response = await queriesApi.getAllQueries();
       
-      // If we got valid data, use it. Otherwise, use dummy data
-      if (data && Array.isArray(data) && data.length > 0) {
-        setQueries(data as Query[]);
+      // If we got valid data, use it
+      if (response && Array.isArray(response)) {
+        setQueries(response as Query[]);
       } else {
-        setQueries(dummyQueries);
+        setQueries([]); // Set empty array if no valid data
       }
     } catch (error) {
       console.error("Error loading queries:", error);
-      // Use dummy data on error
-      setQueries(dummyQueries);
+      setQueries([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -106,50 +74,34 @@ export default function Queries() {
       toast.error("Query title cannot be empty");
       return;
     }
+
+    if (!user?.id) {
+      toast.error("You must be signed in to post a query");
+      return;
+    }
     
-    // Get current date/time for timestamp
-    const now = new Date();
-    const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
-    // Create the new query for immediate UI update
-    const newLocalQuery: Query = {
-      id: Date.now().toString(), // Temporary ID
-      author: user?.id || "",
-      authorName: user?.fullName || "Anonymous",
-      title: newQueryTitle,
-      content: newQuery,
-      likes: 0,
-      likedBy: [],
-      replies: [],
-      tags: [],
-      timestamp: `Today at ${formattedTime}`
-    };
-    
-    // Update UI immediately
-    setQueries(prevQueries => [newLocalQuery, ...prevQueries]);
-    setNewQuery("");
-    setNewQueryTitle("");
-    setShowQueryForm(false);
-    
-    // Show success message
-    toast.success("Query posted successfully");
-    
-    // Try to update backend (but don't disrupt user experience if it fails)
     try {
       const queryData = {
         content: newQuery,
         title: newQueryTitle,
         tags: [], // Could add tag input in the future
-        author: user?.id || ""
+        author: user.id
       };
       
-      await queriesApi.postQuery(queryData).catch(error => {
-        console.error("Backend update failed:", error);
-        // We already showed success, so no need to tell the user about backend failure
-      });
+      // Make the API call first
+      const savedQuery = await queriesApi.postQuery(queryData);
+      
+      // Only update UI after successful API call
+      if (savedQuery) {
+        setQueries(prevQueries => [savedQuery, ...prevQueries]);
+        setNewQuery("");
+        setNewQueryTitle("");
+        setShowQueryForm(false);
+        toast.success("Query posted successfully");
+      }
     } catch (error) {
       console.error("Error posting query:", error);
-      // We already showed success, so no need to tell the user about error
+      toast.error("Failed to post query. Please try again.");
     }
   };
   
@@ -160,7 +112,7 @@ export default function Queries() {
     }
     
     // Find the query
-    const query = queries.find(q => q.id === queryId);
+    const query = queries.find(q => q._id === queryId);
     if (!query) return;
     
     // Check if user already liked this query
@@ -168,7 +120,7 @@ export default function Queries() {
     
     // Update UI immediately
     setQueries(prev => prev.map(q => {
-      if (q.id === queryId) {
+      if (q._id === queryId) {
         return {
           ...q,
           likes: alreadyLiked ? q.likes - 1 : q.likes + 1,
@@ -230,7 +182,7 @@ export default function Queries() {
       };
       
       setQueries(prev => prev.map(query => {
-        if (query.id === queryId) {
+        if (query._id === queryId) {
           return {
             ...query,
             replies: [...query.replies, newReply]
@@ -354,7 +306,7 @@ export default function Queries() {
         ) : (
           <div className="space-y-6">
             {queries.map((query) => (
-              <div key={query.id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div key={query._id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">{query.title}</h3>
@@ -376,10 +328,10 @@ export default function Queries() {
                       className={`flex items-center space-x-2 hover:text-indigo-600 ${
                         query.likedBy.includes(user.id || "") ? 'text-indigo-600' : ''
                       }`}
-                      onClick={() => handleLikeQuery(query.id)}
+                      onClick={() => handleLikeQuery(query._id)}
                     >
                       <ThumbsUp className="h-5 w-5" />
-                      <span className={`transition-all ${animatingLikes[query.id] ? 'scale-125 font-bold' : ''}`}>
+                      <span className={`transition-all ${animatingLikes[query._id] ? 'scale-125 font-bold' : ''}`}>
                         {query.likes}
                       </span>
                     </button>
@@ -389,7 +341,7 @@ export default function Queries() {
                   {(!user || isMentor) && (
                     <div className="flex items-center space-x-2 text-gray-500">
                       <ThumbsUp className="h-5 w-5" />
-                      <span className={`transition-all ${animatingLikes[query.id] ? 'scale-125 font-bold' : ''}`}>
+                      <span className={`transition-all ${animatingLikes[query._id] ? 'scale-125 font-bold' : ''}`}>
                         {query.likes}
                       </span>
                     </div>
@@ -426,14 +378,14 @@ export default function Queries() {
                     <div className="flex space-x-2">
                       <input
                         type="text"
-                        value={replyContents[query.id] || ''}
-                        onChange={(e) => handleReplyInputChange(query.id, e.target.value)}
+                        value={replyContents[query._id] || ''}
+                        onChange={(e) => handleReplyInputChange(query._id, e.target.value)}
                         placeholder="Write a reply..."
                         className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                       />
                       <button
                         className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                        onClick={() => handleReplyToQuery(query.id)}
+                        onClick={() => handleReplyToQuery(query._id)}
                       >
                         <Send className="h-5 w-5" />
                       </button>
