@@ -17,8 +17,8 @@ import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from "@clerk/clerk-react";
 import { userApi } from './services/api';
-import Navbar from "@/components/Navbar";
-import MentorNavbar from "@/components/MentorNavbar";
+import Navbar from "@/components/NavBar";
+import MentorNavbar from "@/components/MentorNavBar";
 
 const queryClient = new QueryClient();
 
