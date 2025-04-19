@@ -4,117 +4,116 @@ import { useUser } from "@clerk/clerk-react";
 import { chatApi } from "@/services/api";
 import { format } from "date-fns";
 import ChatModal from "@/components/ChatModal";
+import { ButtonCustom } from "@/components/ui/button-custom";
+import { MessageCircle, Mail } from "lucide-react";
 
-interface Chat {
+interface Message {
   _id: string;
   studentId: string;
-  messages: Array<{
-    sender: string;
-    content: string;
-    timestamp: Date;
-  }>;
-  lastMessageAt: Date;
+  studentName: string;
+  lastMessage: string;
+  timestamp: string;
+  unread: boolean;
 }
 
 export default function MentorDashboard() {
   const { user } = useUser();
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedChat, setSelectedChat] = useState<Message | null>(null);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchChats = async () => {
-      if (!user) return;
-
-      try {
-        const data = await chatApi.getUserChats(user.id);
-        setChats(data);
-      } catch (error) {
-        console.error('Error fetching chats:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchChats();
+    if (user) {
+      fetchMessages();
+    }
   }, [user]);
 
-  const getLastMessage = (chat: Chat) => {
-    if (chat.messages.length === 0) return "No messages yet";
-    return chat.messages[chat.messages.length - 1].content;
+  const fetchMessages = async () => {
+    try {
+      setLoading(true);
+      const response = await chatApi.getUserChats(user?.id || '');
+      setMessages(response);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Mentor Dashboard</h1>
+        {/* Welcome Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome back, {user?.firstName}!
+          </h1>
           <p className="mt-2 text-gray-600">
-            Welcome back, {user?.firstName || user?.username}!
+            You have {messages.filter(m => m.unread).length} unread messages from students
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Active Chats Section */}
-          <div className="lg:col-span-2">
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Active Chats</h2>
-              
-              {isLoading ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">Loading chats...</p>
-                </div>
-              ) : chats.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No active chats</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {chats.map((chat) => (
-                    <div
-                      key={chat._id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                      onClick={() => {
-                        setSelectedChat(chat);
-                        setIsChatModalOpen(true);
-                      }}
-                    >
-                      <div>
-                        <h3 className="font-medium text-gray-900">Student ID: {chat.studentId}</h3>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {getLastMessage(chat)}
-                        </p>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {format(new Date(chat.lastMessageAt), "MMM d, h:mm a")}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+        {/* Messages Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900">Message Inbox</h2>
+            <ButtonCustom variant="outline" size="sm" onClick={fetchMessages}>
+              Refresh
+            </ButtonCustom>
           </div>
 
-          {/* Stats Section */}
-          <div>
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Overview</h2>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Active Chats</p>
-                  <p className="text-2xl font-semibold text-gray-900">{chats.length}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Total Messages</p>
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {chats.reduce((total, chat) => total + chat.messages.length, 0)}
-                  </p>
-                </div>
-              </div>
+          {loading ? (
+            <div className="text-center py-8">Loading messages...</div>
+          ) : messages.length === 0 ? (
+            <div className="text-center py-8">
+              <Mail className="mx-auto h-12 w-12 text-gray-400" />
+              <p className="mt-2 text-gray-500">No messages yet</p>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              {messages.map((message) => (
+                <div
+                  key={message._id}
+                  className={`flex items-center justify-between p-4 rounded-lg ${
+                    message.unread ? 'bg-indigo-50' : 'bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span className="text-lg font-medium text-indigo-600">
+                        {message.studentName[0]}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        {message.studentName}
+                      </h3>
+                      <p className="text-sm text-gray-500">{message.lastMessage}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-xs text-gray-500">
+                      {new Date(message.timestamp).toLocaleString()}
+                    </span>
+                    <ButtonCustom
+                      variant="default"
+                      size="sm"
+                      className="flex items-center"
+                      onClick={() => {
+                        // Navigate to chat
+                        window.location.href = `/chat/${message._id}`;
+                      }}
+                    >
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Reply
+                    </ButtonCustom>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

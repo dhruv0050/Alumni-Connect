@@ -264,4 +264,59 @@ router.put('/:clerkId/education/:eduId', async (req, res) => {
   }
 });
 
+// Check if user is a mentor
+router.get('/check-mentor/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    console.log('\n=== Mentor Check Request ===');
+    console.log('Email:', email);
+    
+    // Hardcoded mentor emails
+    const mentorEmails = [
+      'arjun.patel@polygon.technology',
+      'priya.sharma@amazon.com'
+    ];
+    
+    // First check hardcoded list
+    const isInList = mentorEmails.includes(email);
+    console.log('Is in mentor list:', isInList);
+    
+    // Then check database
+    const user = await User.findOne({ email });
+    console.log('User found in database:', !!user);
+    console.log('User details:', user);
+    
+    // Force mentor status for specific email
+    const isMentor = isInList;
+    console.log('Final mentor status:', isMentor);
+    
+    // Update user in database if needed
+    if (user && user.role !== 'mentor' && isMentor) {
+      console.log('Updating user role to mentor in database');
+      user.role = 'mentor';
+      await user.save();
+      console.log('User role updated successfully');
+    }
+    
+    // Clear response
+    const response = {
+      isMentor,
+      email,
+      source: isInList ? 'hardcoded_list' : 'database',
+      role: user?.role || 'not_found'
+    };
+    
+    console.log('Sending response:', response);
+    console.log('=========================\n');
+    
+    res.json(response);
+  } catch (error: any) {
+    console.error('Error in check-mentor:', error);
+    res.status(500).json({ 
+      message: 'Error checking mentor status', 
+      error: error.message 
+    });
+  }
+});
+
 export default router; 

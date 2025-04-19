@@ -15,6 +15,16 @@ export const userApi = {
     return response.data;
   },
   
+  checkMentorStatus: async (email: string) => {
+    try {
+      const response = await api.get(`/users/check-mentor/${email}`);
+      return response.data.isMentor;
+    } catch (error) {
+      console.error('Error checking mentor status:', error);
+      return false;
+    }
+  },
+  
   createOrUpdateUser: async (userData: {
     clerkId: string;
     name: string;
@@ -115,36 +125,57 @@ export const sessionApi = {
 
 export const chatApi = {
   startChat: async (mentorId: string, studentId: string) => {
-    const response = await fetch(`${API_URL}/chats`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ mentorId, studentId }),
-    });
-    return response.json();
+    try {
+      const response = await api.post('/chats', { mentorId, studentId });
+      return response.data;
+    } catch (error) {
+      console.error('Error starting chat:', error);
+      throw error;
+    }
   },
 
   getUserChats: async (userId: string) => {
-    const response = await fetch(`${API_URL}/chats/user/${userId}`);
-    return response.json();
+    try {
+      const response = await api.get(`/chats/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user chats:', error);
+      throw error;
+    }
   },
 
   getChat: async (chatId: string) => {
-    const response = await fetch(`${API_URL}/chats/${chatId}`);
-    return response.json();
+    try {
+      const response = await api.get(`/chats/${chatId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching chat:', error);
+      throw error;
+    }
   },
 
   sendMessage: async (chatId: string, sender: string, content: string) => {
-    const response = await fetch(`${API_URL}/chats/${chatId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ sender, content }),
-    });
-    return response.json();
+    try {
+      const response = await api.post(`/chats/${chatId}/messages`, {
+        sender,
+        content
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
   },
+
+  markAsRead: async (chatId: string) => {
+    try {
+      const response = await api.post(`/chats/${chatId}/read`);
+      return response.data;
+    } catch (error) {
+      console.error('Error marking chat as read:', error);
+      throw error;
+    }
+  }
 };
 
 export const queriesApi = {
