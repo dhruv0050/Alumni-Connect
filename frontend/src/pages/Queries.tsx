@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useUser } from "@clerk/clerk-react"
 import NavBar from "@/components/NavBar"
 import { ButtonCustom } from "@/components/ui/button-custom"
-import { MessageCircle, ThumbsUp, MessageSquare, Send, X } from "lucide-react"
+import { MessageCircle, ThumbsUp, MessageSquare, Send, X, Trash2 } from "lucide-react"
 import { queriesApi } from "@/services/api"
 import { toast, Toaster } from "react-hot-toast"
 
@@ -154,6 +154,11 @@ export default function Queries() {
   };
   
   const handleReplyToQuery = async (queryId: string) => {
+    if (!user) {
+      toast.error("You must be signed in to reply");
+      return;
+    }
+
     const replyContent = replyContents[queryId];
     if (!replyContent?.trim()) {
       toast.error("Reply content cannot be empty");
@@ -161,46 +166,39 @@ export default function Queries() {
     }
     
     try {
+      console.log('Attempting to reply to query:', queryId);
+      console.log('Reply data:', {
+        content: replyContent,
+        author: user.id
+      });
+
       const replyData = {
         content: replyContent,
-        author: user?.id || ""
+        author: user.id
       };
       
-      await queriesApi.replyToQuery(queryId, replyData);
+      const updatedQuery = await queriesApi.replyToQuery(queryId, replyData);
+      console.log('Response from server:', updatedQuery);
       
-      // Get current date/time for timestamp
-      const now = new Date();
-      const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      // Update UI optimistically
-      const newReply: Reply = {
-        id: Date.now().toString(),
-        author: user?.id || "",
-        authorName: user?.fullName || "Anonymous",
-        content: replyContent,
-        timestamp: `Today at ${formattedTime}`
-      };
-      
-      setQueries(prev => prev.map(query => {
-        if (query._id === queryId) {
-          return {
-            ...query,
-            replies: [...query.replies, newReply]
-          };
-        }
-        return query;
-      }));
-      
-      toast.success("Reply posted successfully");
-      
-      // Clear the reply input
-      setReplyContents(prev => ({
-        ...prev,
-        [queryId]: ""
-      }));
+      if (updatedQuery) {
+        setQueries(prev => prev.map(query => 
+          query._id === queryId ? updatedQuery : query
+        ));
+        
+        setReplyContents(prev => ({
+          ...prev,
+          [queryId]: ""
+        }));
+        
+        toast.success("Reply posted successfully");
+      }
     } catch (error) {
-      toast.error("Failed to post reply");
       console.error("Error posting reply:", error);
+      console.error("Full error details:", {
+        queryId,
+        error: error.response?.data || error.message
+      });
+      toast.error(error.response?.data?.message || "Failed to post reply");
     }
   };
   
@@ -209,6 +207,46 @@ export default function Queries() {
       ...prev,
       [queryId]: content
     }));
+  };
+  
+  const handleDeleteQuery = async (queryId: string) => {
+    if (!user) {
+      toast.error("You must be signed in to delete a query");
+      return;
+    }
+
+    try {
+      await queriesApi.deleteQuery(queryId, user.id);
+      setQueries(prev => prev.filter(q => q._id !== queryId));
+      toast.success("Query deleted successfully");
+    } catch (error) {
+      console.error("Error deleting query:", error);
+      toast.error("Failed to delete query");
+    }
+  };
+  
+  const handleDeleteReply = async (queryId: string, replyId: string) => {
+    if (!user) {
+      toast.error("You must be signed in to delete a reply");
+      return;
+    }
+
+    try {
+      await queriesApi.deleteReply(queryId, replyId, user.id);
+      setQueries(prev => prev.map(query => {
+        if (query._id === queryId) {
+          return {
+            ...query,
+            replies: query.replies.filter(reply => reply.id !== replyId)
+          };
+        }
+        return query;
+      }));
+      toast.success("Reply deleted successfully");
+    } catch (error) {
+      console.error("Error deleting reply:", error);
+      toast.error("Failed to delete reply");
+    }
   };
   
   return (
@@ -306,14 +344,22 @@ export default function Queries() {
         ) : (
           <div className="space-y-6">
             {queries.map((query) => (
-              <div key={query._id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div key={query._id} className="bg-white rounded-lg shadow-md p-6 mb-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{query.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">Posted by {query.authorName} • {query.timestamp}</p>
+                    <h3 className="text-xl font-semibold mb-2">{query.title}</h3>
+                    <p className="text-gray-600 mb-4">{query.content}</p>
                   </div>
+                  {user?.id === query.author && (
+                    <button
+                      onClick={() => handleDeleteQuery(query._id)}
+                      className="text-red-500 hover:text-red-700"
+                      title="Delete query"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  )}
                 </div>
-                <p className="mt-4 text-gray-600">{query.content}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {query.tags.map((tag) => (
                     <span key={tag} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
@@ -354,42 +400,57 @@ export default function Queries() {
                   </div>
                 </div>
                 
-                {/* Replies Section */}
-                {query.replies.length > 0 && (
-                  <div className="mt-6 border-t pt-4">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Replies</h4>
-                    <div className="space-y-4">
-                      {query.replies.map((reply) => (
-                        <div key={reply.id} className="bg-gray-50 p-3 rounded-lg">
-                          <div className="flex justify-between items-start">
-                            <p className="text-sm font-medium text-gray-900">{reply.authorName}</p>
-                            <p className="text-xs text-gray-500">{reply.timestamp}</p>
-                          </div>
-                          <p className="mt-1 text-sm text-gray-600">{reply.content}</p>
+                {/* Discussion Section */}
+                <div className="mt-4">
+                  {query.replies.map((reply) => (
+                    <div key={reply.id} className="bg-gray-50 rounded p-4 mb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold">{reply.authorName}</p>
+                          <p className="text-gray-700">{reply.content}</p>
+                          <p className="text-gray-500 text-sm">
+                            {new Date(reply.timestamp).toLocaleString()}
+                          </p>
                         </div>
-                      ))}
+                        {user?.id === reply.author && (
+                          <button
+                            onClick={() => handleDeleteReply(query._id, reply.id)}
+                            className="text-red-500 hover:text-red-700"
+                            title="Delete reply"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
                 
-                {/* Reply Input Box (Only for mentors) */}
-                {user && isMentor && (
-                  <div className="mt-4 border-t pt-4">
-                    <div className="flex space-x-2">
+                {/* Reply Input - Show for all logged-in users */}
+                {user && (
+                  <div className="mt-4 flex items-start space-x-2">
+                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-medium text-indigo-600">
+                        {user.fullName?.charAt(0) || 'A'}
+                      </span>
+                    </div>
+                    <div className="flex-1">
                       <input
                         type="text"
                         value={replyContents[query._id] || ''}
                         onChange={(e) => handleReplyInputChange(query._id, e.target.value)}
                         placeholder="Write a reply..."
-                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
                       />
-                      <button
-                        className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                        onClick={() => handleReplyToQuery(query._id)}
-                      >
-                        <Send className="h-5 w-5" />
-                      </button>
                     </div>
+                    <button
+                      onClick={() => handleReplyToQuery(query._id)}
+                      disabled={!replyContents[query._id]?.trim()}
+                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send className="h-4 w-4 mr-1" />
+                      Reply
+                    </button>
                   </div>
                 )}
               </div>

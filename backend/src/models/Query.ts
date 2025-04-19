@@ -1,12 +1,20 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 
-export interface IReply extends Document {
+// Base interface for reply without Document extension
+interface IReplyBase {
+  _id: Types.ObjectId;
   author: string; // Clerk user ID
   authorName: string;
   content: string;
   timestamp: Date;
 }
 
+// Interface for reply as a subdocument
+export interface IReply extends IReplyBase {
+  _id: Types.ObjectId;
+}
+
+// Interface for the main query document
 export interface IQuery extends Document {
   author: string; // Clerk user ID
   authorName: string;

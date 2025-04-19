@@ -172,9 +172,41 @@ export const queriesApi = {
     content: string;
     author: string;
   }) => {
-    const response = await api.post(`/queries/${queryId}/reply`, replyData);
-    return response.data;
+    console.log('Making API call to:', `/queries/${queryId}/reply`);
+    try {
+      const response = await api.post(`/queries/${queryId}/reply`, replyData);
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', {
+        endpoint: `/queries/${queryId}/reply`,
+        error: error.response?.data || error.message,
+        status: error.response?.status
+      });
+      throw error;
+    }
   },
+
+  deleteQuery: async (queryId: string, userId: string) => {
+    try {
+      const response = await api.delete(`/queries/${queryId}`, { data: { userId } });
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting query:', error);
+      throw error;
+    }
+  },
+
+  deleteReply: async (queryId: string, replyId: string, userId: string) => {
+    try {
+      const response = await api.delete(`/queries/${queryId}/replies/${replyId}`, {
+        data: { userId }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting reply:', error);
+      throw error;
+    }
+  }
 };
 
 export const jobApi = {
@@ -203,5 +235,22 @@ export const jobApi = {
   getUserApplications: async (userId: string) => {
     const response = await api.get(`/jobs/applications/user/${userId}`);
     return response.data;
+  }
+};
+
+interface CreateUserData {
+  clerkId: string;
+  name: string;
+  email: string;
+  role: 'user' | 'mentor' | 'admin';
+}
+
+export const createOrUpdateUser = async (userData: CreateUserData) => {
+  try {
+    const response = await api.post('/users', userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating/updating user:', error);
+    throw error;
   }
 }; 

@@ -1,6 +1,7 @@
 import express from 'express';
 import Query, { IReply } from '../models/Query';
 import User from '../models/User';
+import { Types } from 'mongoose';
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ router.get('/', async (req, res) => {
   try {
     const queries = await Query.find().sort({ timestamp: -1 });
     res.json(queries);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching queries:', error);
     res.status(500).json({ message: 'Error fetching queries' });
   }
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
       if (user) {
         authorName = user.name;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error finding user:', err);
       // Continue with default name if user not found
     }
@@ -46,7 +47,7 @@ router.post('/', async (req, res) => {
     
     const savedQuery = await newQuery.save();
     res.status(201).json(savedQuery);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating query:', error);
     res.status(500).json({ message: 'Error creating query' });
   }
@@ -79,7 +80,7 @@ router.post('/:id/like', async (req, res) => {
     
     const updatedQuery = await query.save();
     res.json(updatedQuery);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating query likes:', error);
     res.status(500).json({ message: 'Error updating query likes' });
   }
@@ -91,8 +92,17 @@ router.post('/:id/reply', async (req, res) => {
     const { id } = req.params;
     const { content, author } = req.body;
     
+    console.log('Received reply request:', {
+      queryId: id,
+      content,
+      author
+    });
+
     const query = await Query.findById(id);
+    console.log('Found query:', query ? 'yes' : 'no');
+    
     if (!query) {
+      console.log('Query not found with ID:', id);
       return res.status(404).json({ message: 'Query not found' });
     }
     
@@ -100,22 +110,20 @@ router.post('/:id/reply', async (req, res) => {
     let authorName = 'Anonymous User';
     try {
       const user = await User.findOne({ clerkId: author });
+      console.log('Found user:', user ? 'yes' : 'no');
+      
       if (user) {
         authorName = user.name;
-        
-        // Check if user is a mentor (only mentors can reply)
-        if (user.role !== 'mentor' && user.role !== 'admin') {
-          return res.status(403).json({ message: 'Only mentors can reply to queries' });
-        }
       } else {
+        console.log('User not found with Clerk ID:', author);
         return res.status(404).json({ message: 'User not found' });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error finding user:', err);
       return res.status(500).json({ message: 'Error processing request' });
     }
     
-    // Add the reply - use the correct type structure
+    // Add the reply
     query.replies.push({
       author,
       authorName,
@@ -124,10 +132,16 @@ router.post('/:id/reply', async (req, res) => {
     } as IReply);
     
     const updatedQuery = await query.save();
+    console.log('Reply added successfully');
     
     res.json(updatedQuery);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error adding reply:', error);
+    console.error('Error details:', {
+      id: req.params.id,
+      body: req.body,
+      errorMessage: error?.message || 'Unknown error'
+    });
     res.status(500).json({ message: 'Error adding reply' });
   }
 });
@@ -138,9 +152,69 @@ router.get('/user/:userId', async (req, res) => {
     const { userId } = req.params;
     const queries = await Query.find({ author: userId }).sort({ timestamp: -1 });
     res.json(queries);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user queries:', error);
     res.status(500).json({ message: 'Error fetching user queries' });
+  }
+});
+
+// Delete a query (only by the author)
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body; // This will be the Clerk ID of the user making the request
+
+    const query = await Query.findById(id);
+    if (!query) {
+      return res.status(404).json({ message: 'Query not found' });
+    }
+
+    // Check if the user is the author of the query
+    if (query.author !== userId) {
+      return res.status(403).json({ message: 'Not authorized to delete this query' });
+    }
+
+    await Query.findByIdAndDelete(id);
+    res.json({ message: 'Query deleted successfully' });
+  } catch (error: any) {
+    console.error('Error deleting query:', error);
+    res.status(500).json({ message: 'Error deleting query' });
+  }
+});
+
+// Delete a reply (only by the reply author)
+router.delete('/:queryId/replies/:replyId', async (req, res) => {
+  try {
+    const { queryId, replyId } = req.params;
+    const { userId } = req.body;
+
+    const query = await Query.findById(queryId);
+    if (!query) {
+      return res.status(404).json({ message: 'Query not found' });
+    }
+
+    // Find the reply using mongoose Types
+    const reply = query.replies.find(
+      (r) => r._id && r._id.equals(new Types.ObjectId(replyId))
+    );
+
+    if (!reply) {
+      return res.status(404).json({ message: 'Reply not found' });
+    }
+
+    // Check if the user is the author of the reply
+    if (reply.author !== userId) {
+      return res.status(403).json({ message: 'Not authorized to delete this reply' });
+    }
+
+    // Remove the reply using pull
+    query.replies = query.replies.filter(r => !r._id.equals(new Types.ObjectId(replyId)));
+    await query.save();
+
+    res.json({ message: 'Reply deleted successfully' });
+  } catch (error: any) {
+    console.error('Error deleting reply:', error);
+    res.status(500).json({ message: 'Error deleting reply' });
   }
 });
 
