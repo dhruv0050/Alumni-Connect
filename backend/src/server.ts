@@ -20,8 +20,12 @@ initializeSocket(httpServer);
 
 // Middleware
 app.use(cors({
-  origin: '*', // During testing only - we'll restrict this later
-  credentials: true
+  origin: [
+    'https://alumni-connect-frontend.vercel.app',
+    'http://localhost:5173', // Keep local development
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 }));
 app.use(express.json());
 
