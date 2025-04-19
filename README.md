@@ -100,11 +100,11 @@ PORT=5000
 ```bash
 # Start backend server
 cd backend
-npm start
+npm run dev
 
 # In a new terminal, start frontend
 cd frontend
-npm start
+npm run dev
 ```
 
 ---
@@ -128,4 +128,3 @@ We welcome contributions from everyone! Feel free to fork the repo, create pull 
 ---
 ## 🙋‍♀️ Made with 💙 
 Project created and maintained by [@dhruv0050](https://github.com/dhruv0050). Feel free to reach out with questions or feedback!
-## Devang hizruboy
