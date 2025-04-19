@@ -131,6 +131,12 @@ const App = () => {
                     : <Navigate to="/sign-in" replace />
                 }
               />
+              <Route
+                path="/profile/:id"
+                element={
+                  <Profile />
+                }
+              />
             </Routes>
             <Toaster />
           </div>
