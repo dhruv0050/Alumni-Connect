@@ -17,11 +17,13 @@ export const userApi = {
   
   checkMentorStatus: async (email: string) => {
     try {
+      console.log('Checking mentor status for:', email);
       const response = await api.get(`/users/check-mentor/${email}`);
-      return response.data.isMentor;
+      console.log('Mentor check response:', response.data);
+      return response.data;
     } catch (error) {
       console.error('Error checking mentor status:', error);
-      return false;
+      throw error;
     }
   },
   

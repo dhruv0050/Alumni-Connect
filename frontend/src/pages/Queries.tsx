@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/clerk-react"
-import NavBar from "@/components/NavBar"
 import { ButtonCustom } from "@/components/ui/button-custom"
 import { MessageCircle, ThumbsUp, MessageSquare, Send, X, Trash2 } from "lucide-react"
 import { queriesApi } from "@/services/api"
@@ -251,23 +250,16 @@ export default function Queries() {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavBar />
-      <Toaster position="top-right" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Open Queries</h1>
             <p className="mt-2 text-gray-600">Get help from the community of mentors</p>
           </div>
-          {/* Post Query button only shown to logged-in regular users */}
-          {user && !isMentor && (
-            <ButtonCustom 
-              variant="default" 
-              size="lg" 
-              className="flex items-center"
-              onClick={() => setShowQueryForm(true)}
-            >
-              <MessageCircle className="mr-2 h-5 w-5" /> Post a Query
+          {!isMentor && (
+            <ButtonCustom onClick={() => setShowQueryForm(true)} className="flex items-center">
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Post a Query
             </ButtonCustom>
           )}
         </div>

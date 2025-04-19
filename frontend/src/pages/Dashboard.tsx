@@ -1,4 +1,3 @@
-import NavBar from "@/components/NavBar"
 import { format, formatDistance } from "date-fns"
 import { SignedIn, useUser } from "@clerk/clerk-react"
 import { useNavigate } from "react-router-dom"
@@ -455,7 +454,6 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <NavBar />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">Loading your dashboard...</div>
         </div>
@@ -465,7 +463,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>

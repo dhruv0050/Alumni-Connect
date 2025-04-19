@@ -268,54 +268,59 @@ router.put('/:clerkId/education/:eduId', async (req, res) => {
 router.get('/check-mentor/:email', async (req, res) => {
   try {
     const { email } = req.params;
-    console.log('\n=== Mentor Check Request ===');
-    console.log('Email:', email);
+    console.log('Checking mentor status for email:', email);
     
-    // Hardcoded mentor emails
+    // List of mentor emails
     const mentorEmails = [
       'arjun.patel@polygon.technology',
       'priya.sharma@amazon.com'
     ];
     
-    // First check hardcoded list
-    const isInList = mentorEmails.includes(email);
-    console.log('Is in mentor list:', isInList);
+    // Check if email is in mentor list
+    const isInMentorList = mentorEmails.includes(email);
+    console.log('Is in mentor list:', isInMentorList);
     
-    // Then check database
-    const user = await User.findOne({ email });
-    console.log('User found in database:', !!user);
-    console.log('User details:', user);
+    // Find user in database
+    let user = await User.findOne({ email });
+    console.log('Found user in database:', user);
     
-    // Force mentor status for specific email
-    const isMentor = isInList;
-    console.log('Final mentor status:', isMentor);
-    
-    // Update user in database if needed
-    if (user && user.role !== 'mentor' && isMentor) {
-      console.log('Updating user role to mentor in database');
-      user.role = 'mentor';
-      await user.save();
-      console.log('User role updated successfully');
+    // If email is in mentor list but user doesn't exist or isn't a mentor, create/update them
+    if (isInMentorList) {
+      if (!user) {
+        // Create new user as mentor
+        user = new User({
+          email,
+          role: 'mentor',
+          name: email.split('@')[0].replace('.', ' '), // Temporary name from email
+          skills: [],
+          experience: [],
+          education: []
+        });
+        await user.save();
+        console.log('Created new mentor user:', user);
+      } else if (user.role !== 'mentor') {
+        // Update existing user to be a mentor
+        user.role = 'mentor';
+        await user.save();
+        console.log('Updated user to mentor role:', user);
+      }
     }
     
-    // Clear response
-    const response = {
+    // Return true if user exists and is a mentor
+    const isMentor = isInMentorList || (user?.role === 'mentor');
+    console.log('Final mentor status:', isMentor);
+    
+    res.json({ 
       isMentor,
-      email,
-      source: isInList ? 'hardcoded_list' : 'database',
-      role: user?.role || 'not_found'
-    };
-    
-    console.log('Sending response:', response);
-    console.log('=========================\n');
-    
-    res.json(response);
-  } catch (error: any) {
-    console.error('Error in check-mentor:', error);
-    res.status(500).json({ 
-      message: 'Error checking mentor status', 
-      error: error.message 
+      user: user ? {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      } : null
     });
+  } catch (error) {
+    console.error('Error checking mentor status:', error);
+    res.status(500).json({ message: 'Error checking mentor status' });
   }
 });
 
