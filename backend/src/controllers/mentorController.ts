@@ -1,6 +1,21 @@
 import { Request, Response } from 'express';
 import Mentor from '../models/Mentor';
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        [key: string]: any;
+      };
+      file?: {
+        path: string;
+        [key: string]: any;
+      };
+    }
+  }
+}
+
 export const getMentorProfile = async (req: Request, res: Response) => {
   try {
     const mentor = await Mentor.findById(req.params.id);
@@ -99,4 +114,6 @@ export const updatePrivacySettings = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({ message: 'Error updating privacy settings', error });
   }
-}; 
+};
+
+export {}; 
