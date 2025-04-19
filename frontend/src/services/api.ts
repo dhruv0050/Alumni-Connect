@@ -9,6 +9,72 @@ const api = axios.create({
   },
 });
 
+export const userApi = {
+  getUserProfile: async (clerkId: string) => {
+    const response = await api.get(`/users/${clerkId}`);
+    return response.data;
+  },
+  
+  createOrUpdateUser: async (userData: {
+    clerkId: string;
+    name: string;
+    email: string;
+    headline?: string;
+    about?: string;
+    skills?: string[];
+    experience?: any[];
+    education?: any[];
+    imageUrl?: string;
+    role?: string;
+  }) => {
+    const response = await api.post('/users', userData);
+    return response.data;
+  },
+  
+  addSkill: async (clerkId: string, skill: string) => {
+    const response = await api.post(`/users/${clerkId}/skills`, { skill });
+    return response.data;
+  },
+  
+  removeSkill: async (clerkId: string, skill: string) => {
+    const response = await api.delete(`/users/${clerkId}/skills/${skill}`);
+    return response.data;
+  },
+  
+  addExperience: async (clerkId: string, experience: {
+    title: string;
+    company: string;
+    location: string;
+    startDate: Date;
+    endDate?: Date;
+    description: string;
+  }) => {
+    const response = await api.post(`/users/${clerkId}/experience`, experience);
+    return response.data;
+  },
+  
+  updateExperience: async (clerkId: string, expId: string, expData: any) => {
+    const response = await api.put(`/users/${clerkId}/experience/${expId}`, expData);
+    return response.data;
+  },
+  
+  addEducation: async (clerkId: string, education: {
+    school: string;
+    degree: string;
+    field: string;
+    startYear: number;
+    endYear?: number;
+  }) => {
+    const response = await api.post(`/users/${clerkId}/education`, education);
+    return response.data;
+  },
+  
+  updateEducation: async (clerkId: string, eduId: string, eduData: any) => {
+    const response = await api.put(`/users/${clerkId}/education/${eduId}`, eduData);
+    return response.data;
+  }
+};
+
 export const mentorApi = {
   getAllMentors: async () => {
     const response = await api.get('/mentors');
@@ -79,4 +145,62 @@ export const chatApi = {
     });
     return response.json();
   },
+};
+
+export const queriesApi = {
+  getAllQueries: async () => {
+    const response = await api.get('/queries');
+    return response.data;
+  },
+  
+  postQuery: async (queryData: {
+    content: string;
+    tags: string[];
+    author: string;
+  }) => {
+    const response = await api.post('/queries', queryData);
+    return response.data;
+  },
+  
+  likeQuery: async (queryId: string, userId: string) => {
+    const response = await api.post(`/queries/${queryId}/like`, { userId });
+    return response.data;
+  },
+  
+  replyToQuery: async (queryId: string, replyData: {
+    content: string;
+    author: string;
+  }) => {
+    const response = await api.post(`/queries/${queryId}/reply`, replyData);
+    return response.data;
+  },
+};
+
+export const jobApi = {
+  getAllJobs: async () => {
+    const response = await api.get('/jobs');
+    return response.data;
+  },
+  
+  getJobById: async (id: string) => {
+    const response = await api.get(`/jobs/${id}`);
+    return response.data;
+  },
+  
+  applyToJob: async (jobId: string, applicationData: {
+    userId: string;
+    email: string;
+    phone: string;
+    experience: string;
+    coverLetter: string;
+    resumeUrl?: string;
+  }) => {
+    const response = await api.post(`/jobs/${jobId}/apply`, applicationData);
+    return response.data;
+  },
+  
+  getUserApplications: async (userId: string) => {
+    const response = await api.get(`/jobs/applications/user/${userId}`);
+    return response.data;
+  }
 }; 

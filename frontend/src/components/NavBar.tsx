@@ -1,6 +1,7 @@
 import { ButtonCustom } from "./ui/button-custom"
 import { useNavigate } from "react-router-dom"
 import { useUser, useClerk, SignedIn, SignedOut } from "@clerk/clerk-react"
+import { User } from "lucide-react"
 
 export default function NavBar() {
   const navigate = useNavigate()
@@ -39,9 +40,15 @@ export default function NavBar() {
             
             <SignedIn>
               <div className="flex items-center space-x-4">
-                <span className="text-gray-700 text-sm">
-                  {user?.firstName || user?.username}
-                </span>
+                <ButtonCustom 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/dashboard')}
+                  className="flex items-center"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </ButtonCustom>
                 <ButtonCustom variant="secondary" size="sm" onClick={() => signOut()}>
                   Sign Out
                 </ButtonCustom>

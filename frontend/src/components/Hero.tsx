@@ -1,8 +1,10 @@
-
 import { ButtonCustom } from "./ui/button-custom"
 import { ArrowRight } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
@@ -16,12 +18,22 @@ export default function Hero() {
           </p>
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
             <div className="rounded-md shadow">
-              <ButtonCustom variant="default" size="lg" className="w-full flex items-center justify-center">
+              <ButtonCustom 
+                variant="default" 
+                size="lg" 
+                className="w-full flex items-center justify-center"
+                onClick={() => navigate('/mentors')}
+              >
                 Find a Mentor <ArrowRight className="ml-2 h-5 w-5" />
               </ButtonCustom>
             </div>
             <div className="mt-3 sm:mt-0 sm:ml-3">
-              <ButtonCustom variant="secondary" size="lg" className="w-full flex items-center justify-center">
+              <ButtonCustom 
+                variant="secondary" 
+                size="lg" 
+                className="w-full flex items-center justify-center"
+                onClick={() => navigate('/queries')}
+              >
                 Browse Open Queries
               </ButtonCustom>
             </div>
