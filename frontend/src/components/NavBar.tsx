@@ -14,7 +14,7 @@ export default function NavBar() {
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
             <a href="/" className="text-2xl font-bold text-indigo-600">
-              AlumniConnect
+              Mentor Mojo
             </a>
           </div>
           
