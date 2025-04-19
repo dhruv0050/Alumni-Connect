@@ -112,7 +112,7 @@ export default function Mentors() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavBar />
+      {/* <NavBar /> */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Toaster position="top-right" />
         <div className="flex justify-between items-center mb-8">
