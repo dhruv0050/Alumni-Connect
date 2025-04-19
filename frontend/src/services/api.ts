@@ -204,6 +204,7 @@ export const queriesApi = {
   replyToQuery: async (queryId: string, replyData: {
     content: string;
     author: string;
+    isMentor?: boolean;
   }) => {
     console.log('Making API call to:', `/queries/${queryId}/reply`);
     try {

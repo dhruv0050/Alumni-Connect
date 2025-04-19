@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/clerk-react"
 import { ButtonCustom } from "@/components/ui/button-custom"
-import { MessageCircle, ThumbsUp, MessageSquare, Send, X, Trash2 } from "lucide-react"
+import { MessageCircle, ThumbsUp, MessageSquare, Send, X, Trash2, CheckCircle } from "lucide-react"
 import { queriesApi } from "@/services/api"
 import { toast, Toaster } from "react-hot-toast"
 
 interface Reply {
-  id: string;
+  _id: string;
   author: string;
   authorName: string;
   content: string;
   timestamp: string;
+  isMentor?: boolean;
 }
 
 interface Query {
@@ -168,12 +169,14 @@ export default function Queries() {
       console.log('Attempting to reply to query:', queryId);
       console.log('Reply data:', {
         content: replyContent,
-        author: user.id
+        author: user.id,
+        isMentor: user.publicMetadata?.role === 'mentor'
       });
 
       const replyData = {
         content: replyContent,
-        author: user.id
+        author: user.id,
+        isMentor: user.publicMetadata?.role === 'mentor'
       };
       
       const updatedQuery = await queriesApi.replyToQuery(queryId, replyData);
@@ -236,7 +239,7 @@ export default function Queries() {
         if (query._id === queryId) {
           return {
             ...query,
-            replies: query.replies.filter(reply => reply.id !== replyId)
+            replies: query.replies.filter(reply => reply._id !== replyId)
           };
         }
         return query;
@@ -395,18 +398,27 @@ export default function Queries() {
                 {/* Discussion Section */}
                 <div className="mt-4">
                   {query.replies.map((reply) => (
-                    <div key={reply.id} className="bg-gray-50 rounded p-4 mb-2">
+                    <div key={reply._id} className="bg-gray-50 rounded p-4 mb-2">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-semibold">{reply.authorName}</p>
+                          <div className="flex items-center gap-1">
+                            <p className="font-semibold">{reply.authorName}</p>
+                            {reply.isMentor && (
+                              <div className="inline-flex items-center justify-center">
+                                <div className="h-4 w-4 rounded-full bg-[#3897f0] relative flex items-center justify-center">
+                                  <CheckCircle className="h-3 w-3 text-white absolute" strokeWidth={3} />
+                                </div>
+                              </div>
+                            )}
+                          </div>
                           <p className="text-gray-700">{reply.content}</p>
                           <p className="text-gray-500 text-sm">
                             {new Date(reply.timestamp).toLocaleString()}
                           </p>
                         </div>
-                        {user?.id === reply.author && (
+                        {(user?.id === reply.author || user?.publicMetadata?.role === 'mentor') && (
                           <button
-                            onClick={() => handleDeleteReply(query._id, reply.id)}
+                            onClick={() => handleDeleteReply(query._id, reply._id)}
                             className="text-red-500 hover:text-red-700"
                             title="Delete reply"
                           >

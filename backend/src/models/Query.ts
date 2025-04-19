@@ -7,6 +7,7 @@ interface IReplyBase {
   authorName: string;
   content: string;
   timestamp: Date;
+  isMentor: boolean;
 }
 
 // Interface for reply as a subdocument
@@ -31,7 +32,8 @@ const replySchema = new Schema({
   author: { type: String, required: true },
   authorName: { type: String, required: true },
   content: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now }
+  timestamp: { type: Date, default: Date.now },
+  isMentor: { type: Boolean, default: false }
 });
 
 const querySchema = new Schema({

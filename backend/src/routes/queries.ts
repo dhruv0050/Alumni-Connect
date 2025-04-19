@@ -106,14 +106,16 @@ router.post('/:id/reply', async (req, res) => {
       return res.status(404).json({ message: 'Query not found' });
     }
     
-    // Get user's name from their Clerk ID
+    // Get user's name and role from their Clerk ID
     let authorName = 'Anonymous User';
+    let isMentor = false;
     try {
       const user = await User.findOne({ clerkId: author });
       console.log('Found user:', user ? 'yes' : 'no');
       
       if (user) {
         authorName = user.name;
+        isMentor = user.role === 'mentor';
       } else {
         console.log('User not found with Clerk ID:', author);
         return res.status(404).json({ message: 'User not found' });
@@ -128,7 +130,8 @@ router.post('/:id/reply', async (req, res) => {
       author,
       authorName,
       content,
-      timestamp: new Date()
+      timestamp: new Date(),
+      isMentor // Include the mentor status
     } as IReply);
     
     const updatedQuery = await query.save();
