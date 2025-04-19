@@ -146,7 +146,10 @@ export default function Mentors() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMentors.map((mentor) => (
               <div key={mentor._id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start space-x-4">
+                <div 
+                  className="flex items-start space-x-4 cursor-pointer"
+                  onClick={() => navigate(`/profile/${mentor._id}`)}
+                >
                   <img src={mentor.imageUrl} alt={mentor.name} className="h-12 w-12 rounded-full" />
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{mentor.name}</h3>
@@ -166,7 +169,13 @@ export default function Mentors() {
                     ))}
                   </div>
                 </div>
-                <div className="mt-4">
+                <div className="mt-4 space-y-2">
+                  <Button 
+                    className="w-full bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+                    onClick={() => navigate(`/profile/${mentor._id}`)}
+                  >
+                    View Profile
+                  </Button>
                   <SignedIn>
                     <Button 
                       className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
