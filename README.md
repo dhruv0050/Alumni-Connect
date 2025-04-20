@@ -1,6 +1,8 @@
-# 🎓 Mentor Mojo
+# 🎓 Alumni Connect
 
-**Mentor Mojo** is a platform that bridges the gap between college students and their alumni for personalized career guidance, live mentoring sessions, and more — all while ensuring privacy, safety, and career-focused features.
+Deployed Link: [Alumni Connect](https://alumni-connect-frontend.vercel.app/)
+
+**Alumni Connect** is a platform that bridges the gap between college students and their alumni for personalized career guidance, live mentoring sessions, and more — all while ensuring privacy, safety, and career-focused features.
 
 ---
 
