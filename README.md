@@ -37,6 +37,9 @@ Deployed Link: [Alumni Connect](https://alumni-connect-frontend.vercel.app/)
 - Students can post queries for free
 - Alumni can voluntarily respond and help out juniors without any session booking
 
+### 🧑‍💼 Internal Job/Internship Alerts
+- Alumni can post openings from their companies to give students insider access to opportunities
+
 ---
 
 ## 🚀 Features to be added in Future
@@ -45,8 +48,6 @@ Deployed Link: [Alumni Connect](https://alumni-connect-frontend.vercel.app/)
 - Upload a resume and get instant feedback on how well it fits specific job roles
 - AI suggests improvements based on the job profile
 
-### 🧑‍💼 Internal Job/Internship Alerts
-- Alumni can post openings from their companies to give students insider access to opportunities
 
 ### 🔗 1-on-1 Mentoring
 - Book live mentoring sessions with alumni from well-established companies
@@ -60,6 +61,10 @@ Deployed Link: [Alumni Connect](https://alumni-connect-frontend.vercel.app/)
 | Frontend | Backend | Auth | ML Features |
 | -------- | ------- | ---- | ------------ |
 | React.js | Node.js + Express.js | Clerk.dev | Python (Resume Analysis) |
+
+## 🛠️ Deployment
+- Used vercel for frontend 
+- Used Railway for backend
 
 ---
 
@@ -125,8 +130,7 @@ We welcome contributions from everyone! Feel free to fork the repo, create pull 
 
 ---
 
-## 🙋‍♀️ Made with 💙 by Team Mentor Mojo
-[@dhruv0050](https://github.com/dhruv0050)
+## 🙋‍♀️ Made with 💙 by Team Simpsons
 ---
-## 🙋‍♀️ Made with 💙 
-Project created and maintained by [@dhruv0050](https://github.com/dhruv0050). Feel free to reach out with questions or feedback!
+Project maintained by [@dhruv0050](https://github.com/dhruv0050). 
+Feel free to reach out with questions or feedback!
