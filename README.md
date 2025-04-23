@@ -1,8 +1,8 @@
 # 🎓 Alumni Connect
 
--Deployed Link: [Alumni Connect](https://alumni-connect-frontend.vercel.app/)
+- Deployed Link: [Alumni Connect](https://alumni-connect-frontend.vercel.app/)
 
--Explanatory Video Link: [Youtube Video](https://youtu.be/vz08cN-tbw4)
+- Explanatory Video Link: [Youtube Video](https://youtu.be/vz08cN-tbw4)
 
 **Alumni Connect** is a platform that bridges the gap between college students and their alumni for personalized career guidance, live mentoring sessions, and more — all while ensuring privacy, safety, and career-focused features.
 
